@@ -1,0 +1,28 @@
+.dw-container {
+	height: 150px;
+	overflow: auto;
+	border: 1px solid #dfdfdf;
+	padding: 0.5em;
+	margin-bottom: 5px;
+}
+.dw-collapse {
+	margin: 0.5em 0;
+	line-height: 1.5em;
+}
+.dw-collapse:first-of-type {
+	margin-top: 0;
+}
+.dw-collapse summary,
+.dw-collapse h4 {
+	font-size: 1.1em;
+	cursor: pointer;
+	font-weight: 500;
+}
+.dw-collapse summary::marker, 
+.dw-collapse summary::-webkit-details-marker {
+	font-size: 1.3em;
+	cursor: pointer;
+}
+.dw-collapse ul {
+	margin-top: 0.5em;
+}
