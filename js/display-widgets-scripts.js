@@ -7,7 +7,6 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		widget.addEventListener( 'toggle', function( e ) {
 			var inside, opts, form, data;
 			if ( e.target.hasAttribute( 'open' ) ) {
-				console.log(e);
 				inside = e.target.querySelector( '.widget-inside' );
 				form = inside.querySelector( 'form' );
 				opts = inside.querySelector( '.dw_opts' );
@@ -16,7 +15,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				}
 	
 				inside.querySelector( '.spinner' ).style.display = '';
-				data = new FormData( form );console.log(data);
+				data = new FormData( form );
 				data.append( 'action', 'dw_show_widget' );
 				data.delete( 'widget_number' );
 				data.append( 'widget_number', ( inside.querySelector( 'input.multi_number' ).value == '') ? inside.querySelector( 'input.widget_number' ).value : inside.querySelector( 'input.multi_number' ).value );
