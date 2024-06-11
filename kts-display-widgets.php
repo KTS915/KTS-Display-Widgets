@@ -252,7 +252,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 
 	function hidden_widget_options( $widget, $return, $instance ) {
-		wp_nonce_field( 'display-widget-' . $widget->id_base );
+		wp_nonce_field( 'display-widget' );
 
 		self::register_globals();
 
@@ -295,18 +295,15 @@ class KTS_Display_Widgets extends WP_Widget {
 
 
 	function show_widget_options() {
-		check_admin_referer( 'display-widget-' . sanitize_text_field( wp_unslash( $_POST['id_base'] ) ) );
+		check_admin_referer( 'display-widget' );
 
 		if ( empty( $_POST['id_base'] ) || empty( $_POST['widget_number'] ) || empty( $_POST[ 'widget-' . $_POST['id_base'] ][ $_POST['widget_number'] ] ) ) {
 			return;
 		}
-		$instance = array();
+
 		$this->id_base = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
 		$this->number = sanitize_text_field( wp_unslash( $_POST['widget_number'] ) );
-		$instance_array = wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] );
-		foreach( $instance_array as $instance_string ) {
-			$instance[] = sanitize_text_field( $instance_string );
-		}
+		$instance = array_map( 'sanitize_text_field', wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] ) );
 
 		self::show_hide_widget_options( $this, '', $instance );
 		wp_die();
@@ -314,7 +311,6 @@ class KTS_Display_Widgets extends WP_Widget {
 
 
 	function show_hide_widget_options( $widget, $return, $instance ) {
-
 		self::register_globals();
 		$wp_page_types = self::page_types();
 			
