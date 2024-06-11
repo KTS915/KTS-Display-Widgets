@@ -255,12 +255,11 @@ class KTS_Display_Widgets extends WP_Widget {
 
 
 	function hidden_widget_options( $widget, $return, $instance ) {
-
 		wp_nonce_field( 'display-widget-' . $widget->id_base );
+		check_admin_referer( 'display-widget-' . $widget->id_base );
 
 		// Check if widget was just saved so it's open.
 		if ( $_POST && isset( $_POST['id_base'] ) && $_POST['id_base'] === $widget->id_base ) {
-			check_admin_referer( 'display-widget-' . $widget->id_base );
 			self::show_hide_widget_options( $widget, $return, $instance );
 			return;
 		}
@@ -299,13 +298,13 @@ class KTS_Display_Widgets extends WP_Widget {
 	}
 
 
-	function show_widget_options() {error_log(print_r($_POST, true));
+	function show_widget_options() {
+		check_admin_referer( 'display-widget-' . $_POST['id_base'] );
+
 		if ( empty( $_POST['id_base'] ) || empty( $_POST['widget_number'] ) || empty( $_POST[ 'widget-' . $_POST['id_base'] ][ $_POST['widget_number'] ] ) ) {
 			return;
 		}
 		$this->id_base = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
-
-		check_admin_referer( 'display-widget-' . $this->id_base );
 
 		$this->number = sanitize_text_field( wp_unslash( $_POST['widget_number'] ) );
 		$instance = wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] );
@@ -466,7 +465,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 					<li>
 						<input class="checkbox" type="checkbox" <?php checked( $instance[ 'cat-'. $cat->cat_ID ], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'cat-' . $cat->cat_ID ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'cat-'. $cat->cat_ID ) ); ?>">
-						<label for="<?php echo $widget->get_field_id( 'cat-'. $cat->cat_ID ); ?>"><?php echo $cat->cat_name ?></label>
+						<label for="<?php echo esc_attr( $widget->get_field_id( 'cat-'. $cat->cat_ID ) ); ?>"><?php echo esc_html( $cat->cat_name ); ?></label>
 					</li>
 
 					<?php
@@ -493,7 +492,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 					<li>
 						<input class="checkbox" type="checkbox" <?php checked( $instance['tax-'. $tax], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'tax-'. $tax ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'tax-'. $tax ) ); ?>">
-						<label for="<?php echo esc_attr( $widget->get_field_id( 'tax-' . $tax ) ); ?>"><?php echo str_replace( array( '_','-' ), ' ', ucfirst( $taxname ) ) ?></label>
+						<label for="<?php echo esc_attr( $widget->get_field_id( 'tax-' . $tax ) ); ?>"><?php echo esc_html( str_replace( array( '_','-' ), ' ', ucfirst( $taxname ) ) ); ?></label>
 					</li>
 
 						<?php
@@ -524,7 +523,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 						<li>
 							<input class="checkbox" type="checkbox" <?php checked( $instance[ 'lang-' . $key ], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'lang-'. $key ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'lang-'. $key ) ); ?>">
-							<label for="<?php echo esc_attr( $widget->get_field_id( 'lang-' . $key ) ); ?>"><?php echo $lang[ 'native_name' ] ?></label>
+							<label for="<?php echo esc_attr( $widget->get_field_id( 'lang-' . $key ) ); ?>"><?php echo esc_html( $lang[ 'native_name' ] ); ?></label>
 						</li>
 
 						<?php 
@@ -682,10 +681,10 @@ class KTS_Display_Widgets extends WP_Widget {
 		$page_types = array(
 			'front'	  => __( 'Front', 'display-widgets' ),
 			'home'	  => __( 'Blog', 'display-widgets' ),
-			'archive' => __( 'Archives'),
-			'single'  => __( 'Single Post'),
+			'archive' => __( 'Archives', 'display-widgets' ),
+			'single'  => __( 'Single Post', 'display-widgets' ),
 			'404'	  => '404',
-			'search'  => __( 'Search'),
+			'search'  => __( 'Search', 'display-widgets' ),
 		);
 
 		return apply_filters( 'dw_pages_types_register', $page_types );
