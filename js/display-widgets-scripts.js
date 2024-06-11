@@ -13,8 +13,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				if ( opts.length == 0 ) {
 					return;
 				}
-	
-				inside.querySelector( '.spinner' ).style.display = '';
+
 				data = new FormData( form );
 				data.append( 'action', 'dw_show_widget' );
 				data.delete( 'widget_number' );
@@ -33,7 +32,6 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				} )
 				.then( function( html ) {
 					opts.innerHTML = html;
-					inside.querySelector( '.spinner' ).style.display = 'none';
 				} )
 				.catch( function( error ) {
 					console.log( error );
