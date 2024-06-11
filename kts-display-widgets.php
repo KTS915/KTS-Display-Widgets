@@ -380,7 +380,7 @@ class KTS_Display_Widgets extends WP_Widget {
 					$args = array( 'instance' => $instance, 'widget' => $widget );
 					$page_list = $this->page_list->walk( $this->pages, 0, $args );
 					if ( $page_list ) {
-						echo '<ul>' . esc_html( $page_list ). '</ul>';
+						echo '<ul>' . $page_list. '</ul>';
 					}
 					?>
 
