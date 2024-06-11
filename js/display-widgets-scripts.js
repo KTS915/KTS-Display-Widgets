@@ -10,7 +10,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				inside = e.target.querySelector( '.widget-inside' );
 				form = inside.querySelector( 'form' );
 				opts = inside.querySelector( '.dw_opts' );
-				if ( opts.length == 0 ) {
+				if ( opts == null ) {
 					return;
 				}
 
