@@ -255,8 +255,12 @@ class KTS_Display_Widgets extends WP_Widget {
 
 
 	function hidden_widget_options( $widget, $return, $instance ) {
-		if ( $_POST && isset( $_POST['id_base'] ) && $_POST['id_base'] == $widget->id_base ) {
-			// widget was just saved so it's open
+
+		wp_nonce_field( 'display-widget-' . $widget->id_base );
+
+		// Check if widget was just saved so it's open.
+		if ( $_POST && isset( $_POST['id_base'] ) && $_POST['id_base'] === $widget->id_base ) {
+			check_admin_referer( 'display-widget-' . $widget->id_base );
 			self::show_hide_widget_options( $widget, $return, $instance );
 			return;
 		}
@@ -281,14 +285,14 @@ class KTS_Display_Widgets extends WP_Widget {
 				if ( strpos( $k, 'page-' ) === 0 || strpos( $k, 'type-' ) === 0 || strpos( $k, 'cat-' ) === 0 || strpos( $k, 'tax-' ) === 0 || strpos( $k, 'lang-' ) === 0 ) {
 				?>
 
-					<input type="hidden" id="<?php echo esc_attr( $widget->get_field_id( $k ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( $k ) ); ?>" value="<?php echo esc_attr( $v ) ?>"  />
+					<input type="hidden" id="<?php echo esc_attr( $widget->get_field_id( $k ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( $k ) ); ?>" value="<?php echo esc_attr( $v ) ?>">
 
 				<?php
 				}
 			}
 			?>
 
-			<input type="hidden" name="<?php echo esc_attr( $widget->get_field_name('other_ids') ); ?>" id="<?php echo esc_attr( $widget->get_field_id('other_ids') ); ?>" value="<?php echo esc_attr( $instance['other_ids'] ) ?>" />
+			<input type="hidden" name="<?php echo esc_attr( $widget->get_field_name('other_ids') ); ?>" id="<?php echo esc_attr( $widget->get_field_id('other_ids') ); ?>" value="<?php echo esc_attr( $instance['other_ids'] ) ?>">
 		</div>
 
 	<?php
@@ -296,8 +300,13 @@ class KTS_Display_Widgets extends WP_Widget {
 
 
 	function show_widget_options() {
-		$this->id_base = sanitize_text_field( $_POST['id_base'] );
-		$this->number = sanitize_text_field( $_POST['widget_number'] );
+		if ( empty( $_POST['id_base'] ) || empty( $_POST['widget_number'] ) ) {
+			return;
+		}
+		check_admin_referer( 'display-widget-' . $_POST['id_base'] );
+
+		$this->id_base = wp_unslash( $_POST['id_base'] );
+		$this->number = wp_unslash( $_POST['widget_number'] );
 		$instance = wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] );
 
 		self::show_hide_widget_options( $this, '', $instance );
@@ -670,15 +679,15 @@ class KTS_Display_Widgets extends WP_Widget {
 
 	function page_types(){
 		$page_types = array(
-			'front'	 => __( 'Front', 'display-widgets' ),
+			'front'	  => __( 'Front', 'display-widgets' ),
 			'home'	  => __( 'Blog', 'display-widgets' ),
-			'archive'   => __( 'Archives'),
-			'single'	=> __( 'Single Post'),
-			'404'	   => '404',
-			'search'	=> __( 'Search'),
+			'archive' => __( 'Archives'),
+			'single'  => __( 'Single Post'),
+			'404'	  => '404',
+			'search'  => __( 'Search'),
 		);
 		
-		return apply_filters('dw_pages_types_register', $page_types);
+		return apply_filters( 'dw_pages_types_register', $page_types );
 	}
 
 
@@ -748,8 +757,8 @@ class KTS_Display_Widgets extends WP_Widget {
 		// save for one week
 		set_transient( $this->transient_name, array(
 			'pages'	 => $this->pages,
-			'cats'	  => $this->cats,
-			'cposts'	=> $this->cposts,
+			'cats'   => $this->cats,
+			'cposts' => $this->cposts,
 			'taxes'	 => $this->taxes,
 		), 60*60*24*7 );
 
@@ -808,7 +817,7 @@ class KTS_DW_Walker_Page_List extends Walker_Page {
 		}
 
 		$output .= '<li>' . $indent;
-		$output .= '<input class="checkbox" type="checkbox" ' . checked( $instance[ 'page-' . $page->ID ], true, false ) . ' id="' . esc_attr( $widget->get_field_id('page-'. $page->ID) ) . '" name="' . esc_attr( $widget->get_field_name('page-'. $page->ID) ) .'" />';
+		$output .= '<input class="checkbox" type="checkbox" ' . checked( $instance[ 'page-' . $page->ID ], true, false ) . ' id="' . esc_attr( $widget->get_field_id('page-'. $page->ID) ) . '" name="' . esc_attr( $widget->get_field_name('page-'. $page->ID) ) .'">';
 
 		$output .= '<label for="' . esc_attr( $widget->get_field_id('page-'. $page->ID) ) . '">' . apply_filters( 'the_title', $page->post_title, $page->ID ) . '</label>';
 	}
