@@ -28,53 +28,53 @@ class KTS_Display_Widgets extends WP_Widget {
 	public $checked = array();
 	public $id_base = '';
 	public $number = '';
-	
+
 	// pages on site
 	public $pages = array();
-	
+
 	// custom post types
 	public $cposts = array();
-	
+
 	// taxonomies
 	public $taxes = array();
-	
+
 	// categories
 	public $cats = array();
-	
+
 	// WPML languages
 	public $langs = array();
-	
+
 	public function __construct() {
-		
+
 		add_filter( 'widget_display_callback', array( $this, 'show_widget' ) );
-		
+
 		// change the hook that triggers widget check
 		$hook = apply_filters( 'dw_callback_trigger', 'wp_loaded' );
-		
+
 		add_action( $hook, array( $this, 'trigger_widget_checks' ) );
 		add_action( 'in_widget_form', array( $this, 'hidden_widget_options'), 10, 3 );
 		add_filter( 'widget_update_callback', array( $this, 'update_widget_options' ), 10, 3 );
 		add_action( 'wp_ajax_dw_show_widget', array( $this, 'show_widget_options' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts_and_styles' ) );
-		
+
 		// when a page is saved
 		add_action( 'save_post_page', array( $this, 'delete_transient' ) );
-		
+
 		// when a new category/taxonomy is created
 		add_action( 'created_term', array( $this, 'delete_transient' ) );
-		
+
 		// when a custom post type is added
 		add_action( 'update_option_rewrite_rules', array( $this, 'delete_transient' ) );
-		
+
 		// reset transient after activating the plugin
 		register_activation_hook( dirname(__FILE__) . '/display-widgets.php', array( $this, 'delete_transient' ) );
-		
+
 		add_action( 'plugins_loaded', array( $this, 'load_lang' ) );
 
 		// get custom Page Walker
 		$this->page_list = new KTS_DW_Walker_Page_List();
 	}
-	
+
 	function trigger_widget_checks() {
 		add_filter( 'sidebars_widgets', array( $this, 'sidebars_widgets' ) );
 	}
@@ -82,7 +82,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 	function show_widget( $instance ) {
 		$instance['dw_logged'] = self::show_logged( $instance );
-		
+
 		// check logged in first
 		if ( in_array( $instance['dw_logged'], array( 'in', 'out' ) ) ) {
 			$user_ID = is_user_logged_in();
@@ -90,7 +90,7 @@ class KTS_Display_Widgets extends WP_Widget {
 				return false;
 			}
 		}
-		
+
 		$post_id = get_queried_object_id();
 		$post_id = self::get_lang_id( $post_id, 'page' );
 
@@ -99,7 +99,7 @@ class KTS_Display_Widgets extends WP_Widget {
 			if ( ! $show && $post_id ) {
 				$show = isset( $instance[ 'page-' . $post_id ] ) ? $instance[ 'page-' . $post_id ] : false;
 			}
-			
+
 			// check if blog page is front page too
 			if ( ! $show && is_front_page() && isset( $instance['page-front'] ) ) {
 				$show = $instance['page-front'];
@@ -299,8 +299,8 @@ class KTS_Display_Widgets extends WP_Widget {
 	}
 
 
-	function show_widget_options() {
-		if ( empty( $_POST['id_base'] ) || empty( $_POST['widget_number'] ) ) {
+	function show_widget_options() {error_log(print_r($_POST, true));
+		if ( empty( $_POST['id_base'] ) || empty( $_POST['widget_number'] ) || empty( $_POST[ 'widget-' . $_POST['id_base'] ][ $_POST['widget_number'] ] ) ) {
 			return;
 		}
 		$this->id_base = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
@@ -308,11 +308,7 @@ class KTS_Display_Widgets extends WP_Widget {
 		check_admin_referer( 'display-widget-' . $this->id_base );
 
 		$this->number = sanitize_text_field( wp_unslash( $_POST['widget_number'] ) );
-
-		if ( empty( wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] ) ) {
-			return;
-		}
-		$instance = sanitize_text_field( wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] ) );
+		$instance = wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] );
 
 		self::show_hide_widget_options( $this, '', $instance );
 		wp_die();
@@ -341,7 +337,7 @@ class KTS_Display_Widgets extends WP_Widget {
 		<p>
 			<select name="<?php echo esc_attr( $widget->get_field_name( 'dw_include' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'dw_include' ) ); ?>" class="widefat">
 				<option value="0"><?php esc_html_e( 'Hide on checked pages', 'display-widgets' ) ?></option>
-				<option value="1" <?php echo selected( $instance['dw_include'], 1 ) ?>><?php _e( 'Show on checked pages', 'display-widgets' ) ?></option>
+				<option value="1" <?php echo selected( $instance['dw_include'], 1 ) ?>><?php esc_html_e( 'Show on checked pages', 'display-widgets' ) ?></option>
 			</select>
 		</p>	
 
@@ -354,12 +350,12 @@ class KTS_Display_Widgets extends WP_Widget {
 
 					<?php
 					foreach ( $wp_page_types as $key => $label ) {
-						$instance['page-'. $key] = isset( $instance[ 'page-' . $key ] ) ? $instance[ 'page-' . $key ] : false;
+						$instance[ 'page-' . $key ] = isset( $instance[ 'page-' . $key ] ) ? $instance[ 'page-' . $key ] : false;
 					?>
 
 					<li>
 						<input class="checkbox" type="checkbox" <?php checked( $instance[ 'page-' . $key ], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'page-'. $key ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'page-'. $key ) ); ?>">
-						<label for="<?php echo esc_attr( $widget->get_field_id( 'page-' . $key ) ); ?>"><?php echo $label; ?></label>
+						<label for="<?php echo esc_attr( $widget->get_field_id( 'page-' . $key ) ); ?>"><?php echo esc_html( $label ); ?></label>
 					</li>
 
 					<?php
@@ -384,7 +380,7 @@ class KTS_Display_Widgets extends WP_Widget {
 					$args = array( 'instance' => $instance, 'widget' => $widget );
 					$page_list = $this->page_list->walk( $this->pages, 0, $args );
 					if ( $page_list ) {
-						echo '<ul>' . $page_list . '</ul>';
+						echo '<ul>' . esc_html( $page_list ). '</ul>';
 					}
 					?>
 
@@ -408,7 +404,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 						<li>
 							<input class="checkbox" type="checkbox" <?php checked( $instance[ 'type-'. $post_key ], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'type-'. $post_key ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'type-'. $post_key ) ); ?>">
-							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-'. $post_key ) ); ?>"><?php echo stripslashes( $custom_post->labels->name ) ?></label>
+							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-'. $post_key ) ); ?>"><?php echo esc_html( $custom_post->labels->name ) ?></label>
 						</li>
 
 						<?php
@@ -436,7 +432,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 						<li>
 							<input class="checkbox" type="checkbox" <?php checked( $instance[ 'type-' . $post_key . '-archive' ], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'type-'. $post_key . '-archive' ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'type-' . $post_key . '-archive' ) ); ?>">
-							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-' . $post_key . '-archive' ) ); ?>"><?php echo stripslashes( $custom_post->labels->name ) ?> <?php esc_html_e( 'Archive', 'display-widgets' ) ?></label>
+							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-' . $post_key . '-archive' ) ); ?>"><?php echo esc_html( $custom_post->labels->name ) ?> <?php esc_html_e( 'Archive', 'display-widgets' ) ?></label>
 						</li>
 					<?php
 					}
@@ -450,7 +446,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 			<details class="dw-collapse">
 				<summary>
-					<h4><?php esc_html_e( 'Categories' ); ?></h4>
+					<h4><?php esc_html_e( 'Categories', 'display-widgets' ); ?></h4>
 				</summary>
 				<ul>
 
@@ -460,7 +456,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 					<li>
 						<input class="checkbox" type="checkbox" <?php checked( $instance['cat-all'], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'cat-all' ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'cat-all' ) ); ?>">
-						<label for="<?php echo $widget->get_field_id( 'cat-all' ); ?>"><?php esc_html_e( 'All Categories', 'display-widgets' ); ?></label>
+						<label for="<?php echo esc_attr( $widget->get_field_id( 'cat-all' ) ); ?>"><?php esc_html_e( 'All Categories', 'display-widgets' ); ?></label>
 					</li>
 
 					<?php
@@ -669,7 +665,7 @@ class KTS_Display_Widgets extends WP_Widget {
 		if ( isset( $instance['dw_logged'] ) ) {
 			return $instance['dw_logged'];
 		}
-		
+
 		if ( isset( $instance['dw_logout'] ) && $instance['dw_logout'] ) {
 			$instance['dw_logged'] = 'out';
 		} else if ( isset( $instance['dw_login'] ) && $instance['dw_login'] ) {
@@ -677,7 +673,7 @@ class KTS_Display_Widgets extends WP_Widget {
 		} else {
 			$instance['dw_logged'] = '';
 		}
-		
+
 		return $instance['dw_logged'];
 	}
 
@@ -691,7 +687,7 @@ class KTS_Display_Widgets extends WP_Widget {
 			'404'	  => '404',
 			'search'  => __( 'Search'),
 		);
-		
+
 		return apply_filters( 'dw_pages_types_register', $page_types );
 	}
 
@@ -700,7 +696,7 @@ class KTS_Display_Widgets extends WP_Widget {
 		if ( ! empty( $this->checked ) ) {
 			return;
 		}
-		
+
 		$saved_details = get_transient( $this->transient_name );
 		if ( $saved_details ) {
 			foreach ( $saved_details as $k => $d ) {
@@ -711,7 +707,7 @@ class KTS_Display_Widgets extends WP_Widget {
 				unset( $k, $d );
 			}
 		}
-		
+
 		if ( empty( $this->pages ) ) {
 			$this->pages = get_posts( array(
 				'post_type' => 'page', 'post_status' => 'publish',
@@ -719,46 +715,46 @@ class KTS_Display_Widgets extends WP_Widget {
 				'fields' => array('ID', 'name'),
 			));
 		}
-		
+
 		if ( empty( $this->cats ) ) {
 			$this->cats = get_categories( array(
 				'hide_empty'	=> false,
 				//'fields'		=> 'id=>name', //added in 3.8
 			) );
 		}
-		
+
 		if ( empty( $this->cposts ) ) {
 			$this->cposts = get_post_types( array(
 				'public' => true,
 			), 'object');
-			
+
 			foreach ( array( 'revision', 'attachment', 'nav_menu_item' ) as $unset ) {
 				unset( $this->cposts[ $unset ] );
 			}
-			
+
 			foreach ( $this->cposts as $c => $type ) {
 				$post_taxes = get_object_taxonomies( $c );
 				foreach ( $post_taxes as $post_tax) {
 					if ( in_array( $post_tax, array( 'category', 'post_format' ) ) ) {
 						continue;
 					}
-					
+
 					$taxonomy = get_taxonomy( $post_tax );
 					$name = $post_tax;
 
 					if ( isset( $taxonomy->labels->name ) && ! empty( $taxonomy->labels->name ) ) {
 						$name = $taxonomy->labels->name;
 					}
-					
+
 					$this->taxes[ $post_tax ] = $name;
 				}
 			}
 		}
-		
+
 		if ( empty( $this->langs ) && function_exists('icl_get_languages') ) {
 			$this->langs = icl_get_languages('skip_missing=0&orderby=code');
 		}
-		
+
 		// save for one week
 		set_transient( $this->transient_name, array(
 			'pages'	 => $this->pages,
@@ -788,10 +784,9 @@ class KTS_Display_Widgets extends WP_Widget {
 		if ( function_exists('icl_object_id') ) {
 			$id = icl_object_id( $id, $type, true );
 		}
-	
+
 		return $id;
 	}
-
 }
 
 /*
@@ -815,7 +810,6 @@ class KTS_DW_Walker_Page_List extends Walker_Page {
 
 		// args: $instance, $widget
 		extract( $args, EXTR_SKIP );
-	
 
 		if ( '' === $page->post_title ) {
 			$page->post_title = sprintf( __( '#%d (no title)', 'display-widgets' ), $page->ID );
@@ -830,7 +824,6 @@ class KTS_DW_Walker_Page_List extends Walker_Page {
 	function end_el( &$output, $page, $depth = 0, $args = array() ) {
 		$output .= "</li>\n";
 	}
-
 }
 
 new KTS_Display_Widgets();
