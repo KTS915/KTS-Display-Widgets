@@ -256,10 +256,10 @@ class KTS_Display_Widgets extends WP_Widget {
 
 	function hidden_widget_options( $widget, $return, $instance ) {
 		wp_nonce_field( 'display-widget-' . $widget->id_base );
-		check_admin_referer( 'display-widget-' . $widget->id_base );
 
 		// Check if widget was just saved so it's open.
 		if ( $_POST && isset( $_POST['id_base'] ) && $_POST['id_base'] === $widget->id_base ) {
+			check_admin_referer( 'display-widget-' . $widget->id_base );
 			self::show_hide_widget_options( $widget, $return, $instance );
 			return;
 		}
