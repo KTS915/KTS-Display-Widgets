@@ -70,9 +70,6 @@ class KTS_Display_Widgets extends WP_Widget {
 		register_activation_hook( dirname(__FILE__) . '/display-widgets.php', array( $this, 'delete_transient' ) );
 
 		add_action( 'plugins_loaded', array( $this, 'load_lang' ) );
-
-		// get custom Page Walker
-		$this->page_list = new KTS_DW_Walker_Page_List();
 	}
 
 	function trigger_widget_checks() {
@@ -299,7 +296,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 
 	function show_widget_options() {
-		check_admin_referer( 'display-widget-' . $_POST['id_base'] );
+		check_admin_referer( 'display-widget-' . sanitize_text_field( wp_unslash( $_POST['id_base'] ) ) );
 
 		if ( empty( $_POST['id_base'] ) || empty( $_POST['widget_number'] ) || empty( $_POST[ 'widget-' . $_POST['id_base'] ][ $_POST['widget_number'] ] ) ) {
 			return;
@@ -373,13 +370,14 @@ class KTS_Display_Widgets extends WP_Widget {
 					<?php 
 					foreach ( $this->pages as $page ) {
 						$instance[ 'page-' . $page->ID ] = isset( $instance[ 'page-' . $page->ID ] ) ? $instance[ 'page-' . $page->ID ] : false;
-					}
+						?>
+						
+						<li>
+							<input class="checkbox" type="checkbox" <?php checked( $instance[ 'page-'. $page->ID ], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'page-'. $page->ID ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'page-'. $page->ID ) ); ?>">
+							<label for="<?php echo esc_attr( $widget->get_field_id( 'page-'. $page->ID ) ); ?>"><?php echo esc_html( $page->post_title ); ?></label>
+						</li>
 
-					// use custom Page Walker to build page list
-					$args = array( 'instance' => $instance, 'widget' => $widget );
-					$page_list = $this->page_list->walk( $this->pages, 0, $args );
-					if ( $page_list ) {
-						echo '<ul>' . $page_list. '</ul>';
+						<?php
 					}
 					?>
 
@@ -403,7 +401,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 						<li>
 							<input class="checkbox" type="checkbox" <?php checked( $instance[ 'type-'. $post_key ], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'type-'. $post_key ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'type-'. $post_key ) ); ?>">
-							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-'. $post_key ) ); ?>"><?php echo esc_html( $custom_post->labels->name ) ?></label>
+							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-'. $post_key ) ); ?>"><?php echo esc_html( $custom_post->labels->name ); ?></label>
 						</li>
 
 						<?php
@@ -708,11 +706,16 @@ class KTS_Display_Widgets extends WP_Widget {
 		}
 
 		if ( empty( $this->pages ) ) {
-			$this->pages = get_posts( array(
-				'post_type' => 'page', 'post_status' => 'publish',
-				'numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC',
-				'fields' => array('ID', 'name'),
-			));
+			$this->pages = get_posts(
+				array(
+					'post_type'   => 'page',
+					'post_status' => 'publish',
+					'numberposts' => -1,
+					'orderby'     => 'title', 
+					'order'       => 'ASC',
+					'fields'      => array( 'ID', 'name'),
+				)
+			);
 		}
 
 		if ( empty( $this->cats ) ) {
@@ -750,17 +753,17 @@ class KTS_Display_Widgets extends WP_Widget {
 			}
 		}
 
-		if ( empty( $this->langs ) && function_exists('icl_get_languages') ) {
-			$this->langs = icl_get_languages('skip_missing=0&orderby=code');
+		if ( empty( $this->langs ) && function_exists( 'icl_get_languages' ) ) {
+			$this->langs = icl_get_languages( 'skip_missing=0&orderby=code' );
 		}
 
-		// save for one week
+		// Save for one week
 		set_transient( $this->transient_name, array(
 			'pages'	 => $this->pages,
 			'cats'   => $this->cats,
 			'cposts' => $this->cposts,
 			'taxes'	 => $this->taxes,
-		), 60*60*24*7 );
+		), WEEK_IN_SECONDS );
 
 		if ( empty( $this->checked ) ) {
 			$this->checked[] = true;
@@ -785,43 +788,6 @@ class KTS_Display_Widgets extends WP_Widget {
 		}
 
 		return $id;
-	}
-}
-
-/*
-custom Page Walker class
-*/
-class KTS_DW_Walker_Page_List extends Walker_Page {
-
-	function start_lvl( &$output, $depth = 0, $args = array() ) {
-		$output .= "\n<ul class='children'>\n";
-	}
-
-	function end_lvl( &$output, $depth = 0, $args = array() ) {
-		$output .= "</ul>\n";
-	}
-
-	function start_el( &$output, $page, $depth = 0, $args = array(), $current_page = 0 ) {
-		if ( $depth )
-			$indent = str_repeat("&mdash; ", $depth);
-		else
-			$indent = '';
-
-		// args: $instance, $widget
-		extract( $args, EXTR_SKIP );
-
-		if ( '' === $page->post_title ) {
-			$page->post_title = sprintf( __( '#%d (no title)', 'display-widgets' ), $page->ID );
-		}
-
-		$output .= '<li>' . $indent;
-		$output .= '<input class="checkbox" type="checkbox" ' . checked( $instance[ 'page-' . $page->ID ], true, false ) . ' id="' . esc_attr( $widget->get_field_id('page-'. $page->ID) ) . '" name="' . esc_attr( $widget->get_field_name('page-'. $page->ID) ) .'">';
-
-		$output .= '<label for="' . esc_attr( $widget->get_field_id('page-'. $page->ID) ) . '">' . apply_filters( 'the_title', $page->post_title, $page->ID ) . '</label>';
-	}
-
-	function end_el( &$output, $page, $depth = 0, $args = array() ) {
-		$output .= "</li>\n";
 	}
 }
 
