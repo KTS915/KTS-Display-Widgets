@@ -4,7 +4,7 @@
  * Description:       Adds checkboxes to each widget to show or hide it on specific pages.
  * Author:            Tim Kaye
  * Author URI:        https://timkaye.org
- * Version:           0.1.0
+ * Version:           0.2.0
  * Requires CP:       2.1
  * Requires at least: 6.2.3
  * Requires PHP:      7.4
@@ -301,9 +301,7 @@ class KTS_Display_Widgets extends WP_Widget {
 			return;
 		}
 
-		$this->id_base = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
-		$this->number = sanitize_text_field( wp_unslash( $_POST['widget_number'] ) );
-		$instance = array_map( 'sanitize_text_field', wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] ) );
+		$instance = array_map( 'sanitize_text_field', wp_unslash( $_POST[ 'widget-' . $_POST['id_base'] ][ $_POST['widget_number'] ] ) );
 
 		self::show_hide_widget_options( $this, '', $instance );
 		wp_die();
