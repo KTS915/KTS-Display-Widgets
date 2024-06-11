@@ -8,7 +8,7 @@
  * Requires CP:       2.1
  * Requires at least: 6.2.3
  * Requires PHP:      7.4
- * License:	          GPL2 or later
+ * License:           GPL2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       display-widgets
  * Domain Path:       /languages
@@ -269,8 +269,8 @@ class KTS_Display_Widgets extends WP_Widget {
 		?>
 
 		<div class="dw_opts">
-			<input type="hidden" name="<?php echo esc_attr( $widget->get_field_name('dw_include') ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'dw_include' ) ); ?>" value="<?php echo esc_attr( $instance['dw_include'] ) ?>">
-			<input type="hidden" id="<?php echo esc_attr( $widget->get_field_id('dw_logged') ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'dw_logged' ) ); ?>" value="<?php echo esc_attr( $instance['dw_logged'] ) ?>">
+			<input type="hidden" name="<?php echo esc_attr( $widget->get_field_name( 'dw_include' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'dw_include' ) ); ?>" value="<?php echo esc_attr( $instance['dw_include'] ); ?>">
+			<input type="hidden" id="<?php echo esc_attr( $widget->get_field_id( 'dw_logged' ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'dw_logged' ) ); ?>" value="<?php echo esc_attr( $instance['dw_logged'] ); ?>">
 	
 			<?php
 			foreach ( $instance as $k => $v ) {
@@ -281,14 +281,14 @@ class KTS_Display_Widgets extends WP_Widget {
 				if ( strpos( $k, 'page-' ) === 0 || strpos( $k, 'type-' ) === 0 || strpos( $k, 'cat-' ) === 0 || strpos( $k, 'tax-' ) === 0 || strpos( $k, 'lang-' ) === 0 ) {
 				?>
 
-					<input type="hidden" id="<?php echo esc_attr( $widget->get_field_id( $k ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( $k ) ); ?>" value="<?php echo esc_attr( $v ) ?>">
+					<input type="hidden" id="<?php echo esc_attr( $widget->get_field_id( $k ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( $k ) ); ?>" value="<?php echo esc_attr( $v ); ?>">
 
 				<?php
 				}
 			}
 			?>
 
-			<input type="hidden" name="<?php echo esc_attr( $widget->get_field_name('other_ids') ); ?>" id="<?php echo esc_attr( $widget->get_field_id('other_ids') ); ?>" value="<?php echo esc_attr( $instance['other_ids'] ) ?>">
+			<input type="hidden" name="<?php echo esc_attr( $widget->get_field_name('other_ids') ); ?>" id="<?php echo esc_attr( $widget->get_field_id('other_ids') ); ?>" value="<?php echo esc_attr( $instance['other_ids'] ); ?>">
 		</div>
 
 	<?php
@@ -301,10 +301,13 @@ class KTS_Display_Widgets extends WP_Widget {
 		if ( empty( $_POST['id_base'] ) || empty( $_POST['widget_number'] ) || empty( $_POST[ 'widget-' . $_POST['id_base'] ][ $_POST['widget_number'] ] ) ) {
 			return;
 		}
+		$instance = array();
 		$this->id_base = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
-
 		$this->number = sanitize_text_field( wp_unslash( $_POST['widget_number'] ) );
-		$instance = wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] );
+		$instance_array = wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] );
+		foreach( $instance_array as $instance_string ) {
+			$instance[] = sanitize_text_field( $instance_string );
+		}
 
 		self::show_hide_widget_options( $this, '', $instance );
 		wp_die();
@@ -322,18 +325,18 @@ class KTS_Display_Widgets extends WP_Widget {
 		?>   
 
 		<p>
-			<label for="<?php echo esc_attr( $widget->get_field_id( 'dw_include' ) ); ?>"><?php esc_html_e( 'Show Widget for:', 'display-widgets' ) ?></label>
+			<label for="<?php echo esc_attr( $widget->get_field_id( 'dw_include' ) ); ?>"><?php esc_html_e( 'Show Widget for:', 'display-widgets' ); ?></label>
 			<select name="<?php echo esc_attr( $widget->get_field_name( 'dw_logged' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'dw_logged' ) ); ?>" class="widefat">
-				<option value=""><?php esc_html_e( 'Everyone', 'display-widgets' ) ?></option>
-				<option value="out" <?php echo selected( $instance['dw_logged'], 'out' ) ?>><?php esc_html_e( 'Logged-out users', 'display-widgets' ) ?></option>
-				<option value="in" <?php echo selected( $instance['dw_logged'], 'in' ) ?>><?php esc_html_e( 'Logged-in users', 'display-widgets' ) ?></option>
+				<option value=""><?php esc_html_e( 'Everyone', 'display-widgets' ); ?></option>
+				<option value="out" <?php echo selected( $instance['dw_logged'], 'out' ); ?>><?php esc_html_e( 'Logged-out users', 'display-widgets' ); ?></option>
+				<option value="in" <?php echo selected( $instance['dw_logged'], 'in' ); ?>><?php esc_html_e( 'Logged-in users', 'display-widgets' ); ?></option>
 			</select>
 		</p>
 
 		<p>
 			<select name="<?php echo esc_attr( $widget->get_field_name( 'dw_include' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'dw_include' ) ); ?>" class="widefat">
-				<option value="0"><?php esc_html_e( 'Hide on checked pages', 'display-widgets' ) ?></option>
-				<option value="1" <?php echo selected( $instance['dw_include'], 1 ) ?>><?php esc_html_e( 'Show on checked pages', 'display-widgets' ) ?></option>
+				<option value="0"><?php esc_html_e( 'Hide on checked pages', 'display-widgets' ); ?></option>
+				<option value="1" <?php echo selected( $instance['dw_include'], 1 ); ?>><?php esc_html_e( 'Show on checked pages', 'display-widgets' ); ?></option>
 			</select>
 		</p>	
 
@@ -429,7 +432,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 						<li>
 							<input class="checkbox" type="checkbox" <?php checked( $instance[ 'type-' . $post_key . '-archive' ], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'type-'. $post_key . '-archive' ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'type-' . $post_key . '-archive' ) ); ?>">
-							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-' . $post_key . '-archive' ) ); ?>"><?php echo esc_html( $custom_post->labels->name ) ?> <?php esc_html_e( 'Archive', 'display-widgets' ) ?></label>
+							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-' . $post_key . '-archive' ) ); ?>"><?php echo esc_html( $custom_post->labels->name ); ?> <?php esc_html_e( 'Archive', 'display-widgets' ); ?></label>
 						</li>
 					<?php
 					}
@@ -537,8 +540,8 @@ class KTS_Display_Widgets extends WP_Widget {
 			?>
 	
 			<p>
-				<label for="<?php echo esc_attr( $widget->get_field_id( 'other_ids' ) ); ?>"><?php esc_html_e( 'Comma Separated list of IDs of posts not listed above', 'display-widgets' ) ?>:</label>
-				<input type="text" value="<?php echo esc_attr( $instance['other_ids'] ) ?>" name="<?php echo esc_attr( $widget->get_field_name( 'other_ids' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'other_ids' ) ); ?>">
+				<label for="<?php echo esc_attr( $widget->get_field_id( 'other_ids' ) ); ?>"><?php esc_html_e( 'Comma Separated list of IDs of posts not listed above', 'display-widgets' ); ?>:</label>
+				<input type="text" value="<?php echo esc_attr( $instance['other_ids'] ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'other_ids' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'other_ids' ) ); ?>">
 			</p>
 		</div>
 
