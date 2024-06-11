@@ -1,7 +1,7 @@
 # KTS-Display-Widgets
 Author:            Tim Kaye
 
-Version:           0.1.0
+Version:           0.2.0
 
 Requires CP:       2.1
 
@@ -10,13 +10,29 @@ Requires at least: 6.2.3
 Requires PHP:      7.4
 
 ## Description
-Simply hide widgets on specified pages. Adds checkboxes to each widget to either show or hide it on specific pages.
+Simply show or hide widgets on specified pages. Adds checkboxes to each widget to either show or hide it on specific posts, pages, archives, etc.
 
 Change your sidebar content for different pages, categories, custom taxonomies, and WPML languages. Avoid creating multiple sidebars and duplicating widgets by adding check boxes to each widget in the admin which will either show or hide the widgets on every site page. Great for avoiding extra coding and keeping your sidebars clean.
 
 By default, `Hide on checked pages` is selected with no boxes checked, so all current widgets will continue to display on all pages.
 
-This plugin is based on Display Widgets by Stephanie Wells, but has been substantially re-written to improve performance and accessibility and to eliminate any dependencey on jQuery. 
+This plugin is based on Display Widgets by Stephanie Wells, but has been substantially re-written to improve performance and accessibility and to eliminate any dependency on jQuery.
+
+### Versions
+#### Version 0.2
+- Significant security enhancements
+- Elimination of custom walker for pages
+- Nonce check added for form submission
+- Outdated code replaced
+- Missing text domain added where appropriate
+
+#### Version 0.1
+- Initial fork of Display Widgets plugin
+- JavaScript accordions replaced with native HTML disclosure widget
+- Non-semantic `div`s replaced with semantic `ul` and `li` elements
+- Sanitization and escaping added
+- JavaScript rewritten and enqueued properly
+- CSS enqueued properly
 
 ### Translations
 * Arabic
