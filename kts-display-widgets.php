@@ -254,18 +254,17 @@ class KTS_Display_Widgets extends WP_Widget {
 	function hidden_widget_options( $widget, $return, $instance ) {
 		wp_nonce_field( 'display-widget-' . $widget->id_base );
 
+		self::register_globals();
+
+		$instance['dw_logged'] = self::show_logged( $instance );
+		$instance['dw_include'] = isset( $instance['dw_include'] ) ? $instance['dw_include'] : 0;
+		$instance['other_ids'] = isset( $instance['other_ids'] ) ? $instance['other_ids'] : '';
+		
 		// Check if widget was just saved so it's open.
-		if ( $_POST && isset( $_POST['id_base'] ) && $_POST['id_base'] === $widget->id_base ) {
-			check_admin_referer( 'display-widget-' . $widget->id_base );
+		if ( empty( $instance['dw_logged'] ) ) {
 			self::show_hide_widget_options( $widget, $return, $instance );
 			return;
 		}
-		
-		self::register_globals();
-		
-		$instance['dw_include'] = isset( $instance['dw_include'] ) ? $instance['dw_include'] : 0;
-		$instance['dw_logged'] = self::show_logged( $instance );
-		$instance['other_ids'] = isset( $instance['other_ids'] ) ? $instance['other_ids'] : '';
 		?>
 
 		<div class="dw_opts">
@@ -288,7 +287,7 @@ class KTS_Display_Widgets extends WP_Widget {
 			}
 			?>
 
-			<input type="hidden" name="<?php echo esc_attr( $widget->get_field_name('other_ids') ); ?>" id="<?php echo esc_attr( $widget->get_field_id('other_ids') ); ?>" value="<?php echo esc_attr( $instance['other_ids'] ); ?>">
+			<input type="hidden" name="<?php echo esc_attr( $widget->get_field_name( 'other_ids' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'other_ids' ) ); ?>" value="<?php echo esc_attr( $instance['other_ids'] ); ?>">
 		</div>
 
 	<?php
@@ -786,7 +785,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 	/* WPML support */
 	function get_lang_id( $id, $type = 'page' ) {
-		if ( function_exists('icl_object_id') ) {
+		if ( function_exists( 'icl_object_id' ) ) {
 			$id = icl_object_id( $id, $type, true );
 		}
 
