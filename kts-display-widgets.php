@@ -24,25 +24,25 @@ function dw_callback_trigger(){
 
 class KTS_Display_Widgets extends WP_Widget {
 
-	var $transient_name = 'kts_dw_details';
-	var $checked = array();
-	var $id_base = '';
-	var $number = '';
+	public $transient_name = 'kts_dw_details';
+	public $checked = array();
+	public $id_base = '';
+	public $number = '';
 	
 	// pages on site
-	var $pages = array();
+	public $pages = array();
 	
 	// custom post types
-	var $cposts = array();
+	public $cposts = array();
 	
 	// taxonomies
-	var $taxes = array();
+	public $taxes = array();
 	
 	// categories
-	var $cats = array();
+	public $cats = array();
 	
 	// WPML languages
-	var $langs = array();
+	public $langs = array();
 	
 	public function __construct() {
 		
