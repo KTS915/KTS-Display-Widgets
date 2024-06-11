@@ -303,11 +303,16 @@ class KTS_Display_Widgets extends WP_Widget {
 		if ( empty( $_POST['id_base'] ) || empty( $_POST['widget_number'] ) ) {
 			return;
 		}
-		check_admin_referer( 'display-widget-' . $_POST['id_base'] );
+		$this->id_base = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
 
-		$this->id_base = wp_unslash( $_POST['id_base'] );
-		$this->number = wp_unslash( $_POST['widget_number'] );
-		$instance = wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] );
+		check_admin_referer( 'display-widget-' . $this->id_base );
+
+		$this->number = sanitize_text_field( wp_unslash( $_POST['widget_number'] ) );
+
+		if ( empty( wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] ) ) {
+			return;
+		}
+		$instance = sanitize_text_field( wp_unslash( $_POST[ 'widget-' . $this->id_base ][ $this->number ] ) );
 
 		self::show_hide_widget_options( $this, '', $instance );
 		wp_die();
@@ -325,17 +330,17 @@ class KTS_Display_Widgets extends WP_Widget {
 		?>   
 
 		<p>
-			<label for="<?php echo esc_attr( $widget->get_field_id( 'dw_include' ) ); ?>"><?php _e( 'Show Widget for:', 'display-widgets' ) ?></label>
+			<label for="<?php echo esc_attr( $widget->get_field_id( 'dw_include' ) ); ?>"><?php esc_html_e( 'Show Widget for:', 'display-widgets' ) ?></label>
 			<select name="<?php echo esc_attr( $widget->get_field_name( 'dw_logged' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'dw_logged' ) ); ?>" class="widefat">
-				<option value=""><?php _e( 'Everyone', 'display-widgets' ) ?></option>
-				<option value="out" <?php echo selected( $instance['dw_logged'], 'out' ) ?>><?php _e( 'Logged-out users', 'display-widgets' ) ?></option>
-				<option value="in" <?php echo selected( $instance['dw_logged'], 'in' ) ?>><?php _e( 'Logged-in users', 'display-widgets' ) ?></option>
+				<option value=""><?php esc_html_e( 'Everyone', 'display-widgets' ) ?></option>
+				<option value="out" <?php echo selected( $instance['dw_logged'], 'out' ) ?>><?php esc_html_e( 'Logged-out users', 'display-widgets' ) ?></option>
+				<option value="in" <?php echo selected( $instance['dw_logged'], 'in' ) ?>><?php esc_html_e( 'Logged-in users', 'display-widgets' ) ?></option>
 			</select>
 		</p>
 
 		<p>
 			<select name="<?php echo esc_attr( $widget->get_field_name( 'dw_include' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'dw_include' ) ); ?>" class="widefat">
-				<option value="0"><?php _e( 'Hide on checked pages', 'display-widgets' ) ?></option>
+				<option value="0"><?php esc_html_e( 'Hide on checked pages', 'display-widgets' ) ?></option>
 				<option value="1" <?php echo selected( $instance['dw_include'], 1 ) ?>><?php _e( 'Show on checked pages', 'display-widgets' ) ?></option>
 			</select>
 		</p>	
@@ -343,7 +348,7 @@ class KTS_Display_Widgets extends WP_Widget {
 		<div class="dw-container">
 			<details class="dw-collapse">
 				<summary>
-					<h4><?php _e( 'Miscellaneous', 'display-widgets' ); ?></h4>
+					<h4><?php esc_html_e( 'Miscellaneous', 'display-widgets' ); ?></h4>
 				</summary>
 				<ul>
 
@@ -366,7 +371,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 			<details class="dw-collapse">
 				<summary>
-					<h4><?php _e( 'Pages') ?></h4>
+					<h4><?php esc_html_e( 'Pages', 'display-widgets' ); ?></h4>
 				</summary>
 				<ul>
 
@@ -392,7 +397,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 			<details class="dw-collapse">
 				<summary>
-					<h4><?php _e( 'Custom Post Types', 'display-widgets' ); ?></h4>
+					<h4><?php esc_html_e( 'Custom Post Types', 'display-widgets' ); ?></h4>
 				</summary>
 				<ul>
 
@@ -416,7 +421,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 			<details class="dw-collapse">
 				<summary>
-					<h4><?php _e( 'Custom Post Type Archives', 'display-widgets' ); ?></h4>
+					<h4><?php esc_html_e( 'Custom Post Type Archives', 'display-widgets' ); ?></h4>
 				</summary>
 				<ul>
 
@@ -431,7 +436,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 						<li>
 							<input class="checkbox" type="checkbox" <?php checked( $instance[ 'type-' . $post_key . '-archive' ], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'type-'. $post_key . '-archive' ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'type-' . $post_key . '-archive' ) ); ?>">
-							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-' . $post_key . '-archive' ) ); ?>"><?php echo stripslashes( $custom_post->labels->name ) ?> <?php _e( 'Archive', 'display-widgets' ) ?></label>
+							<label for="<?php echo esc_attr( $widget->get_field_id( 'type-' . $post_key . '-archive' ) ); ?>"><?php echo stripslashes( $custom_post->labels->name ) ?> <?php esc_html_e( 'Archive', 'display-widgets' ) ?></label>
 						</li>
 					<?php
 					}
@@ -445,7 +450,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 			<details class="dw-collapse">
 				<summary>
-					<h4><?php _e( 'Categories' ); ?></h4>
+					<h4><?php esc_html_e( 'Categories' ); ?></h4>
 				</summary>
 				<ul>
 
@@ -455,7 +460,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 					<li>
 						<input class="checkbox" type="checkbox" <?php checked( $instance['cat-all'], true ); ?> id="<?php echo esc_attr( $widget->get_field_id( 'cat-all' ) ); ?>" name="<?php echo esc_attr( $widget->get_field_name( 'cat-all' ) ); ?>">
-						<label for="<?php echo $widget->get_field_id( 'cat-all' ); ?>"><?php _e( 'All Categories', 'display-widgets' ); ?></label>
+						<label for="<?php echo $widget->get_field_id( 'cat-all' ); ?>"><?php esc_html_e( 'All Categories', 'display-widgets' ); ?></label>
 					</li>
 
 					<?php
@@ -481,7 +486,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 			<details class="dw-collapse">
 				<summary>
-					<h4><?php _e( 'Taxonomies', 'display-widgets' ); ?></h4>
+					<h4><?php esc_html_e( 'Taxonomies', 'display-widgets' ); ?></h4>
 				</summary>
 				<ul>
 
@@ -511,7 +516,7 @@ class KTS_Display_Widgets extends WP_Widget {
 
 			<details class="dw-collapse">
 				<summary>
-					<h4><?php _e( 'Languages', 'display-widgets' ); ?></h4>
+					<h4><?php esc_html_e( 'Languages', 'display-widgets' ); ?></h4>
 				</summary>
 				<ul>
 
@@ -539,7 +544,7 @@ class KTS_Display_Widgets extends WP_Widget {
 			?>
 	
 			<p>
-				<label for="<?php echo esc_attr( $widget->get_field_id( 'other_ids' ) ); ?>"><?php _e( 'Comma Separated list of IDs of posts not listed above', 'display-widgets' ) ?>:</label>
+				<label for="<?php echo esc_attr( $widget->get_field_id( 'other_ids' ) ); ?>"><?php esc_html_e( 'Comma Separated list of IDs of posts not listed above', 'display-widgets' ) ?>:</label>
 				<input type="text" value="<?php echo esc_attr( $instance['other_ids'] ) ?>" name="<?php echo esc_attr( $widget->get_field_name( 'other_ids' ) ); ?>" id="<?php echo esc_attr( $widget->get_field_id( 'other_ids' ) ); ?>">
 			</p>
 		</div>
@@ -650,9 +655,9 @@ class KTS_Display_Widgets extends WP_Widget {
 	
 	function enqueue_scripts_and_styles() {
 		global $pagenow;
-		
+
+		// Only load the JS and CSS on the widgets page.
 		if ( $pagenow != 'widgets.php' ) {
-			//only load the js on the widgets page
 			return;
 		}
 		wp_enqueue_style( 'kts-display-widgets', plugin_dir_url( __FILE__ ) . 'css/display-widgets-styles.css' );
