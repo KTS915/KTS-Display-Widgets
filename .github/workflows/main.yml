@@ -23,7 +23,7 @@ jobs:
             name: ${{ github.event.repository.name }}-${{ github.ref_name }}
             path: ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
       - name: Upload to release
-        uses: JasonEtco/upload-to-release@master
+        uses: KTS915/kts-display-widgets@master
         with:
           args: ${{ github.event.repository.name }}-${{ github.ref_name }}.zip application/zip
         env:
