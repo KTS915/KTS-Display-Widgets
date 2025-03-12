@@ -1,4 +1,4 @@
-# KTS-Display-Widgets
+# KTS Display Widgets
 Author:            Tim Kaye
 
 Version:           0.2.0
